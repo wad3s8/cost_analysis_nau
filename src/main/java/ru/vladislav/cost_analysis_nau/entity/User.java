@@ -21,7 +21,9 @@ public class User {
     private String login;
     @Column(nullable = false)
     private String password;
+    @Column
     private String firstName;
+    @Column
     private String lastName;
 
     @OneToMany(cascade = CascadeType.ALL)

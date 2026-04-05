@@ -22,7 +22,10 @@ public class Transaction {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    private Timestamp timestamp;
+    @Column(nullable = false)
+    private Timestamp createdAt;
+    @Column(nullable = false)
     private Double amount;
+    @Column(nullable = false)
     private boolean isIncome;
 }

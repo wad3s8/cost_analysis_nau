@@ -24,7 +24,10 @@ public class Transfer {
     @JoinColumn(name = "to_account_id")
     private Account to;
 
+    @Column
     private String description;
+    @Column(nullable = false)
     private Double amount;
+    @Column(nullable = false)
     private Timestamp timestamp;
 }
