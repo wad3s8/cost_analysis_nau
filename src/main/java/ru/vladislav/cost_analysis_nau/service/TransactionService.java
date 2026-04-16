@@ -56,7 +56,7 @@ public class TransactionService {
         transaction.setCategory(category);
         transaction.setAmount(amount);
         transaction.setIncome(isIncome);
-        transaction.setTimestamp(Timestamp.from(Instant.now()));
+        transaction.setCreatedAt(Timestamp.from(Instant.now()));
 
         transactionRepository.save(transaction);
 
