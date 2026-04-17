@@ -6,6 +6,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 import ru.vladislav.cost_analysis_nau.entity.Category;
 
+@Repository
 @RepositoryRestResource(path = "category")
 public interface CategoryRepository extends CrudRepository<Category, Long> {
     Category findCategoryByName(@Param("name") String name);

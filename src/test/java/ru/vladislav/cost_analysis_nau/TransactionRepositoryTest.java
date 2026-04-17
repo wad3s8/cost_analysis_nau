@@ -50,7 +50,7 @@ class TransactionRepositoryTest {
         transaction1.setCategory(category);
         transaction1.setAmount(100.0);
         transaction1.setIncome(false);
-        transaction1.setTimestamp(Timestamp.from(Instant.now().minusSeconds(60)));
+        transaction1.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60)));
         transactionRepository.save(transaction1);
 
         Transaction transaction2 = new Transaction();
@@ -58,7 +58,7 @@ class TransactionRepositoryTest {
         transaction2.setCategory(category);
         transaction2.setAmount(200.0);
         transaction2.setIncome(false);
-        transaction2.setTimestamp(Timestamp.from(Instant.now()));
+        transaction2.setCreatedAt(Timestamp.from(Instant.now()));
         transactionRepository.save(transaction2);
 
         List<Transaction> foundTransactions =
