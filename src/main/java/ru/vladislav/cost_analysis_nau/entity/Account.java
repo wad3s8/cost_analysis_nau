@@ -20,7 +20,7 @@ public class Account {
     private String description;
 
     @ManyToOne
-    private User user;
+    private UserApp userApp;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<Transaction> transactions;

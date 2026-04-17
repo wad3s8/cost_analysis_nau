@@ -2,7 +2,7 @@ package ru.vladislav.cost_analysis_nau.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.vladislav.cost_analysis_nau.entity.User;
+import ru.vladislav.cost_analysis_nau.entity.UserApp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 public class StorageConfig
 {
     @Bean
-    public List<User> usersList()
+    public List<UserApp> usersList()
     {
         return new ArrayList<>();
     }

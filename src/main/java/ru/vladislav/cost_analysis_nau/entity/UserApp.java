@@ -15,10 +15,12 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class UserApp {
     @JsonIgnore
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @Column(nullable = false, unique = true)
     private String login;
     @Column(nullable = false)
