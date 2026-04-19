@@ -8,7 +8,7 @@ import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 
 @RequiredArgsConstructor
 @Controller
-public class UsersController {
+public class  UsersController {
     private final UsersRepository usersRepository;
 
     @GetMapping("/users/view/list")
