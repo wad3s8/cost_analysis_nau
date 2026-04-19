@@ -7,7 +7,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 import ru.vladislav.cost_analysis_nau.entity.Account;
 
+@Repository
 @RepositoryRestResource(path = "account")
 public interface AccountRepository extends CrudRepository<Account, Long> {
-    boolean existsAccountByAccountId(@Param("accountId") Long accountId);
+    boolean existsAccountById(@Param("accountId") Long accountId);
 }
