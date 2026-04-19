@@ -9,5 +9,5 @@ import ru.vladislav.cost_analysis_nau.entity.Account;
 
 @RepositoryRestResource(path = "account")
 public interface AccountRepository extends CrudRepository<Account, Long> {
-    boolean existsAccountByAccountId(@Param("accountId") Long accountId);
+    boolean existsAccountById(@Param("accountId") Long accountId);
 }
