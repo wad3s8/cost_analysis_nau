@@ -19,6 +19,8 @@ public class User {
     @JsonIgnore
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @Column(nullable = false, unique = true)
     private String login;
     @Column(nullable = false)
