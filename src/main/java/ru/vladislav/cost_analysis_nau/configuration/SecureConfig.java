@@ -21,12 +21,13 @@ public class SecureConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui/**").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/swagger-ui/**").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/data-rest/**").hasRole(Role.ADMIN.name())  // ← новое
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/registration").permitAll()
-                .anyRequest().authenticated())
+                        .anyRequest().authenticated())
                 .formLogin((form) -> form
-                        .loginPage("/login") // Указываем свой URL для страницы входа
+                        .loginPage("/login")
                         .permitAll()
                 );
         return httpSecurity.build();
