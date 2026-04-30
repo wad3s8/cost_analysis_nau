@@ -1,13 +1,8 @@
 package ru.vladislav.cost_analysis_nau.controller;
 
-
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.vladislav.cost_analysis_nau.entity.Category;
 import ru.vladislav.cost_analysis_nau.entity.Transaction;
 import ru.vladislav.cost_analysis_nau.repository.AccountRepository;
@@ -17,7 +12,8 @@ import ru.vladislav.cost_analysis_nau.repository.TransactionRepository;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RestController("/transaction-custom")
+@RestController
+@RequestMapping("/transaction-custom")
 public class TransactionController {
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;

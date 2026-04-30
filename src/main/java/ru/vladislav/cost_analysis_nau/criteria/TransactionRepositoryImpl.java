@@ -50,7 +50,7 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         cq.select(transaction)
                 .where(cb.equal(transaction.get("account").get("id"), accountId))
-                .orderBy(cb.desc(transaction.get("timestamp")));
+                .orderBy(cb.desc(transaction.get("createdAt")));
 
         return entityManager.createQuery(cq).getResultList();
     }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vladislav.cost_analysis_nau.entity.Account;
 import ru.vladislav.cost_analysis_nau.entity.Category;
 import ru.vladislav.cost_analysis_nau.entity.Transaction;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
+@Transactional
 class TransactionRepositoryTest {
 
     private final TransactionRepository transactionRepository;
@@ -70,7 +72,6 @@ class TransactionRepositoryTest {
         Assertions.assertEquals(transaction1.getId(), foundTransactions.get(1).getId());
     }
 
-
     @Test
     void testFindTransactionsByAccountAndCategory() {
         Account account = new Account();
@@ -89,11 +90,11 @@ class TransactionRepositoryTest {
         transaction.setCategory(category);
         transaction.setAmount(150.0);
         transaction.setIncome(false);
-        transaction.setTimestamp(Timestamp.from(Instant.now()));
+        transaction.setCreatedAt(Timestamp.from(Instant.now()));
         transaction = transactionRepository.save(transaction);
 
         List<Transaction> foundTransactions =
-                transactionRepository.findTransactionsByAccountAndCategory(account, category);
+                transactionRepository.findTransactionsByAccountIdAndCategory(account.getId(), category);
 
         Assertions.assertNotNull(foundTransactions);
         Assertions.assertEquals(1, foundTransactions.size());
@@ -101,7 +102,6 @@ class TransactionRepositoryTest {
         Assertions.assertEquals(account.getId(), foundTransactions.get(0).getAccount().getId());
         Assertions.assertEquals(category.getId(), foundTransactions.get(0).getCategory().getId());
     }
-
 
     @Test
     void testFindTransactionsByAccountAndCategoryEmpty() {
@@ -117,7 +117,7 @@ class TransactionRepositoryTest {
         category = categoryRepository.save(category);
 
         List<Transaction> foundTransactions =
-                transactionRepository.findTransactionsByAccountAndCategory(account, category);
+                transactionRepository.findTransactionsByAccountIdAndCategory(account.getId(), category);
 
         Assertions.assertNotNull(foundTransactions);
         Assertions.assertTrue(foundTransactions.isEmpty());
