@@ -25,7 +25,7 @@ public class TransactionController {
         if (!categoryRepository.existsCategoryByName(nameCategory)) {
             throw new ResourceNotFoundException("Category " + nameCategory + " not found");
         }
-        if (!accountRepository.existsById(accountId)) {
+        if (!accountRepository.existsAccountById(accountId)) {
             throw new ResourceNotFoundException("Account " + accountId + " not found");
         }
         Category category = categoryRepository.findCategoryByName(nameCategory);
@@ -33,8 +33,8 @@ public class TransactionController {
     }
 
     @GetMapping("/{accountId}/byAccount")
-    List<Transaction> findTransactionsByAccount(@PathVariable Long accountId) {
-        if (!accountRepository.existsById(accountId)) {
+    List<Transaction> findTransactionsByAccount(@PathVariable Long accountId){
+        if (!accountRepository.existsAccountById(accountId)) {
             throw new ResourceNotFoundException("Account " + accountId + " not found");
         }
         return transactionRepository.findByAccountIdOrderByTimestampDesc(accountId);
