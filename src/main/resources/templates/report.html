@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчёт</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .stats { margin-top: 20px; background: #f9f9f9; padding: 16px; border-radius: 8px; }
+        .stats p { margin: 4px 0; }
+    </style>
+</head>
+<body>
+
+<h1>Статистика приложения</h1>
+
+<h2>Пользователи</h2>
+<p>Зарегистрированных пользователей: <strong th:text="${userCount}"></strong></p>
+
+<h2>Транзакции</h2>
+<p th:if="${transactions.isEmpty()}">Транзакции отсутствуют.</p>
+<table th:unless="${transactions.isEmpty()}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Счёт</th>
+        <th>Категория</th>
+        <th>Сумма</th>
+        <th>Тип</th>
+        <th>Дата</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="t : ${transactions}">
+        <td th:text="${t.id}"></td>
+        <td th:text="${t.account != null ? t.account.name : '—'}"></td>
+        <td th:text="${t.category != null ? t.category.name : '—'}"></td>
+        <td th:text="${t.amount}"></td>
+        <td th:text="${t.income ? 'Доход' : 'Расход'}"></td>
+        <td th:text="${t.createdAt}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="stats">
+    <h2>Время формирования</h2>
+    <p>Подсчёт пользователей: <strong th:text="${userTime} + ' мс'"></strong></p>
+    <p>Получение транзакций: <strong th:text="${transactionTime} + ' мс'"></strong></p>
+    <p>Общее время: <strong th:text="${totalTime} + ' мс'"></strong></p>
+</div>
+
+</body>
+</html>
