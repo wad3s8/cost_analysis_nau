@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vladislav.cost_analysis_nau.entity.Account;
 import ru.vladislav.cost_analysis_nau.entity.Category;
 import ru.vladislav.cost_analysis_nau.entity.Transaction;
@@ -16,7 +17,18 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@SpringBootTest
+@SpringBootTest(
+        properties = {
+                "spring.datasource.url=jdbc:postgresql://localhost:5432/analysis-nau",
+                "spring.datasource.username=analysis-nau",
+                "spring.datasource.password=12345",
+                "spring.datasource.driver-class-name=org.postgresql.Driver",
+                "spring.jpa.hibernate.ddl-auto=update",
+                "app.name=cost_analysis_nau",
+                "app.version=1.0"
+        }
+)
+@Transactional
 class TransactionRepositoryTest {
 
     private final TransactionRepository transactionRepository;
@@ -50,7 +62,7 @@ class TransactionRepositoryTest {
         transaction1.setCategory(category);
         transaction1.setAmount(100.0);
         transaction1.setIncome(false);
-        transaction1.setTimestamp(Timestamp.from(Instant.now().minusSeconds(60)));
+        transaction1.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60)));
         transactionRepository.save(transaction1);
 
         Transaction transaction2 = new Transaction();
@@ -58,7 +70,7 @@ class TransactionRepositoryTest {
         transaction2.setCategory(category);
         transaction2.setAmount(200.0);
         transaction2.setIncome(false);
-        transaction2.setTimestamp(Timestamp.from(Instant.now()));
+        transaction2.setCreatedAt(Timestamp.from(Instant.now()));
         transactionRepository.save(transaction2);
 
         List<Transaction> foundTransactions =
@@ -69,7 +81,6 @@ class TransactionRepositoryTest {
         Assertions.assertEquals(transaction2.getId(), foundTransactions.get(0).getId());
         Assertions.assertEquals(transaction1.getId(), foundTransactions.get(1).getId());
     }
-
 
     @Test
     void testFindTransactionsByAccountAndCategory() {
@@ -89,11 +100,11 @@ class TransactionRepositoryTest {
         transaction.setCategory(category);
         transaction.setAmount(150.0);
         transaction.setIncome(false);
-        transaction.setTimestamp(Timestamp.from(Instant.now()));
+        transaction.setCreatedAt(Timestamp.from(Instant.now()));
         transaction = transactionRepository.save(transaction);
 
         List<Transaction> foundTransactions =
-                transactionRepository.findTransactionsByAccountAndCategory(account, category);
+                transactionRepository.findTransactionsByAccountIdAndCategory(account.getId(), category);
 
         Assertions.assertNotNull(foundTransactions);
         Assertions.assertEquals(1, foundTransactions.size());
@@ -101,7 +112,6 @@ class TransactionRepositoryTest {
         Assertions.assertEquals(account.getId(), foundTransactions.get(0).getAccount().getId());
         Assertions.assertEquals(category.getId(), foundTransactions.get(0).getCategory().getId());
     }
-
 
     @Test
     void testFindTransactionsByAccountAndCategoryEmpty() {
@@ -117,7 +127,7 @@ class TransactionRepositoryTest {
         category = categoryRepository.save(category);
 
         List<Transaction> foundTransactions =
-                transactionRepository.findTransactionsByAccountAndCategory(account, category);
+                transactionRepository.findTransactionsByAccountIdAndCategory(account.getId(), category);
 
         Assertions.assertNotNull(foundTransactions);
         Assertions.assertTrue(foundTransactions.isEmpty());
