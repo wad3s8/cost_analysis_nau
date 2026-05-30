@@ -8,11 +8,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    @Column(nullable = false)
+
+    @Column(nullable = false, unique = true)
     private String name;
+
     @Column(nullable = false)
     private boolean isIncome;
 }
