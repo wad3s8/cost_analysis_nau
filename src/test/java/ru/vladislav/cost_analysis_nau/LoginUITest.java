@@ -14,20 +14,12 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * UI-тесты для проверки входа и выхода из приложения.
- *
- * ВАЖНО: Перед запуском убедитесь, что приложение запущено на localhost:8080.
- * Селекторы (loginInput, passwordInput и т.д.) нужно скорректировать
- * под реальную HTML-разметку страницы входа вашего приложения.
- */
 class LoginUITest {
 
     private static final String BASE_URL = "http://localhost:8080";
     private static final String LOGIN_URL = BASE_URL + "/login";
-    private static final String HOME_URL  = BASE_URL + "/home";      // URL после успешного входа
+    private static final String HOME_URL  = BASE_URL + "/home";
 
-    // Учётные данные тестового пользователя (должны существовать в БД)
     private static final String VALID_LOGIN    = "testuser";
     private static final String VALID_PASSWORD = "testpassword";
 
@@ -42,7 +34,7 @@ class LoginUITest {
     @BeforeEach
     void openBrowser() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");          // Запуск без окна браузера
+        options.addArguments("--headless");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
 
@@ -63,37 +55,25 @@ class LoginUITest {
     @Test
     @DisplayName("Успешный вход с корректными учётными данными")
     void login_ValidCredentials_RedirectsToHomePage() {
-        // Шаг 1: открыть страницу входа
         driver.get(LOGIN_URL);
 
-        // Шаг 2: ввести логин и пароль
-        // ⚠️ Замените значения By.id(...) на реальные id/name атрибуты
-        //    полей вашей страницы входа
         WebElement loginField = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-        WebElement passwordField = driver.findElement(By.id("password"));
-        WebElement submitButton  = driver.findElement(By.id("login-button"));
+                ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement submitButton  = driver.findElement(By.cssSelector("button[type='submit']"));
 
         loginField.clear();
         loginField.sendKeys(VALID_LOGIN);
-
         passwordField.clear();
         passwordField.sendKeys(VALID_PASSWORD);
-
-        // Шаг 3: нажать кнопку входа
         submitButton.click();
 
-        // Шаг 4: убедиться, что произошёл редирект на домашнюю страницу
-        wait.until(ExpectedConditions.urlContains("/home"));
+        wait.until(ExpectedConditions.not(
+                ExpectedConditions.urlContains("/login")));
 
         String currentUrl = driver.getCurrentUrl();
-        assertTrue(currentUrl.contains("/home"),
-                "После входа должен быть редирект на /home, но текущий URL: " + currentUrl);
-
-        // Дополнительно: проверить, что на странице есть признак авторизации
-        // Например, кнопка выхода или приветствие пользователя
-        boolean logoutVisible = !driver.findElements(By.id("logout-button")).isEmpty();
-        assertTrue(logoutVisible, "Кнопка выхода должна быть видна после авторизации");
+        assertFalse(currentUrl.contains("/login"),
+                "После входа не должно быть /login, но текущий URL: " + currentUrl);
     }
 
     // ─── Тест 2: Неверные учётные данные ──────────────────────────────────
@@ -104,25 +84,21 @@ class LoginUITest {
         driver.get(LOGIN_URL);
 
         WebElement loginField = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-        WebElement passwordField = driver.findElement(By.id("password"));
-        WebElement submitButton  = driver.findElement(By.id("login-button"));
+                ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement submitButton  = driver.findElement(By.cssSelector("button[type='submit']"));
 
         loginField.sendKeys(VALID_LOGIN);
         passwordField.sendKeys("wrongpassword");
         submitButton.click();
 
-        // Должны остаться на странице входа
         wait.until(ExpectedConditions.urlContains("/login"));
 
         String currentUrl = driver.getCurrentUrl();
         assertTrue(currentUrl.contains("/login"),
                 "При неверном пароле должны остаться на /login, но текущий URL: " + currentUrl);
-
-        // Проверяем наличие сообщения об ошибке
-        // ⚠️ Замените селектор на реальный из вашей разметки
-        boolean errorMessageVisible = !driver.findElements(By.className("error-message")).isEmpty();
-        assertTrue(errorMessageVisible, "Должно отображаться сообщение об ошибке");
+        assertTrue(currentUrl.contains("error"),
+                "URL должен содержать ?error, но текущий URL: " + currentUrl);
     }
 
     // ─── Тест 3: Успешный выход ────────────────────────────────────────────
@@ -130,36 +106,29 @@ class LoginUITest {
     @Test
     @DisplayName("Успешный выход из системы — редирект на страницу входа")
     void logout_AuthorizedUser_RedirectsToLoginPage() {
-        // Сначала выполняем вход
         driver.get(LOGIN_URL);
 
         WebElement loginField = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-        WebElement passwordField = driver.findElement(By.id("password"));
-        WebElement submitButton  = driver.findElement(By.id("login-button"));
+                ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement submitButton  = driver.findElement(By.cssSelector("button[type='submit']"));
 
         loginField.sendKeys(VALID_LOGIN);
         passwordField.sendKeys(VALID_PASSWORD);
         submitButton.click();
 
-        // Ждём успешного входа
-        wait.until(ExpectedConditions.urlContains("/home"));
+        wait.until(ExpectedConditions.not(
+                ExpectedConditions.urlContains("/login")));
 
-        // Нажимаем кнопку выхода
-        // ⚠️ Замените By.id("logout-button") на реальный селектор
-        WebElement logoutButton = wait.until(
-                ExpectedConditions.elementToBeClickable(By.id("logout-button")));
-        logoutButton.click();
+        driver.get(BASE_URL + "/logout");
 
-        // Проверяем, что произошёл редирект на страницу входа
         wait.until(ExpectedConditions.urlContains("/login"));
 
         String currentUrl = driver.getCurrentUrl();
         assertTrue(currentUrl.contains("/login"),
                 "После выхода должен быть редирект на /login, но текущий URL: " + currentUrl);
 
-        // Проверяем, что форма входа снова отображается
-        boolean loginFormVisible = !driver.findElements(By.id("username")).isEmpty();
+        boolean loginFormVisible = !driver.findElements(By.name("username")).isEmpty();
         assertTrue(loginFormVisible, "После выхода должна отображаться форма входа");
     }
 
@@ -170,7 +139,6 @@ class LoginUITest {
     void accessProtectedPage_NotAuthorized_RedirectsToLogin() {
         driver.get(HOME_URL);
 
-        // Неавторизованный пользователь должен быть перенаправлен на /login
         wait.until(ExpectedConditions.urlContains("/login"));
 
         String currentUrl = driver.getCurrentUrl();

@@ -69,7 +69,7 @@ class TransactionControllerTest {
     @DisplayName("byCategory: категория и счёт существуют — возвращает 200 и список транзакций")
     void getByCategory_ValidParams_Returns200() throws Exception {
         when(categoryRepository.existsCategoryByName("Food")).thenReturn(true);
-        when(accountRepository.existsById(1L)).thenReturn(true);
+        when(accountRepository.existsAccountById(1L)).thenReturn(true);
         when(categoryRepository.findCategoryByName("Food")).thenReturn(foodCategory);
         when(transactionRepository.findTransactionsByAccountIdAndCategory(1L, foodCategory))
                 .thenReturn(List.of(sampleTransaction));
@@ -95,7 +95,7 @@ class TransactionControllerTest {
     @DisplayName("byCategory: счёт не существует — возвращает 404")
     void getByCategory_AccountNotFound_Returns404() throws Exception {
         when(categoryRepository.existsCategoryByName("Food")).thenReturn(true);
-        when(accountRepository.existsById(99L)).thenReturn(false);
+        when(accountRepository.existsAccountById(99L)).thenReturn(false);
 
         mockMvc.perform(get("/transaction-custom/99/byCategory")
                         .param("nameCategory", "Food"))
@@ -106,7 +106,7 @@ class TransactionControllerTest {
     @DisplayName("byCategory: нет транзакций по фильтру — возвращает пустой список")
     void getByCategory_NoTransactions_ReturnsEmptyList() throws Exception {
         when(categoryRepository.existsCategoryByName("Food")).thenReturn(true);
-        when(accountRepository.existsById(1L)).thenReturn(true);
+        when(accountRepository.existsAccountById(1L)).thenReturn(true);
         when(categoryRepository.findCategoryByName("Food")).thenReturn(foodCategory);
         when(transactionRepository.findTransactionsByAccountIdAndCategory(1L, foodCategory))
                 .thenReturn(List.of());
@@ -122,7 +122,7 @@ class TransactionControllerTest {
     @Test
     @DisplayName("byAccount: счёт существует — возвращает 200 и список транзакций")
     void getByAccount_ValidAccount_Returns200() throws Exception {
-        when(accountRepository.existsById(1L)).thenReturn(true);
+        when(accountRepository.existsAccountById(1L)).thenReturn(true);
         when(transactionRepository.findByAccountIdOrderByTimestampDesc(1L))
                 .thenReturn(List.of(sampleTransaction));
 
@@ -134,7 +134,7 @@ class TransactionControllerTest {
     @Test
     @DisplayName("byAccount: счёт не существует — возвращает 404")
     void getByAccount_AccountNotFound_Returns404() throws Exception {
-        when(accountRepository.existsById(99L)).thenReturn(false);
+        when(accountRepository.existsAccountById(99L)).thenReturn(false);
 
         mockMvc.perform(get("/transaction-custom/99/byAccount"))
                 .andExpect(status().isNotFound());
@@ -143,7 +143,7 @@ class TransactionControllerTest {
     @Test
     @DisplayName("byAccount: нет транзакций — возвращает пустой список")
     void getByAccount_NoTransactions_ReturnsEmptyList() throws Exception {
-        when(accountRepository.existsById(1L)).thenReturn(true);
+        when(accountRepository.existsAccountById(1L)).thenReturn(true);
         when(transactionRepository.findByAccountIdOrderByTimestampDesc(1L))
                 .thenReturn(List.of());
 

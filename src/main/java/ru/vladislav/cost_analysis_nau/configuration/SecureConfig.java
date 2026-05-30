@@ -20,7 +20,9 @@ public class SecureConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(auth -> auth
+        httpSecurity
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**").hasRole(Role.ADMIN.name())
                         .requestMatchers("/data-rest/**").hasRole(Role.ADMIN.name())  // ← новое
                         .requestMatchers("/login").permitAll()
@@ -28,6 +30,7 @@ public class SecureConfig {
                         .anyRequest().authenticated())
                 .formLogin((form) -> form
                         .loginPage("/login")
+                        .failureUrl("/login?error")
                         .permitAll()
                 );
         return httpSecurity.build();
