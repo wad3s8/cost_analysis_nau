@@ -1,14 +1,14 @@
 package ru.vladislav.cost_analysis_nau.repository;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
 import ru.vladislav.cost_analysis_nau.entity.Category;
 
-@Repository
+import java.util.List;
+
 @RepositoryRestResource(path = "category")
-public interface CategoryRepository extends CrudRepository<Category, Long> {
-    Category findCategoryByName(@Param("name") String name);
-    boolean existsCategoryByName(@Param("name") String name);
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+    Category findByName(String name);
+    boolean existsByName(String name);
+    List<Category> findByIsIncome(boolean isIncome);
 }

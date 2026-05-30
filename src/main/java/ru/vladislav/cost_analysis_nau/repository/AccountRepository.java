@@ -1,13 +1,13 @@
 package ru.vladislav.cost_analysis_nau.repository;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
 import ru.vladislav.cost_analysis_nau.entity.Account;
 
-@Repository
+import java.util.List;
+
 @RepositoryRestResource(path = "account")
-public interface AccountRepository extends CrudRepository<Account, Long> {
-    boolean existsAccountById(@Param("accountId") Long accountId);
+public interface AccountRepository extends JpaRepository<Account, Long> {
+    List<Account> findByUserId(Long userId);
+    boolean existsByIdAndUserId(Long id, Long userId);
 }
