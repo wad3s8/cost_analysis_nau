@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Переводы')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1>Переводы между счетами</h1>
+
+    <div class="form-wrap" style="margin-bottom:28px">
+        <h2>Новый перевод</h2>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div th:if="${#lists.size(accounts) < 2}" class="alert alert-error">
+            Нужно минимум 2 счёта для перевода. <a th:href="@{/accounts/new}">Добавить счёт</a>
+        </div>
+        <form th:action="@{/transfers/new}" method="post" th:unless="${#lists.size(accounts) < 2}">
+            <div class="form-group">
+                <label>Со счёта</label>
+                <select name="fromAccountId" required>
+                    <option value="" disabled selected>Выберите счёт</option>
+                    <option th:each="acc : ${accounts}"
+                            th:value="${acc.id}"
+                            th:text="${acc.name + ' (' + #numbers.formatDecimal(acc.balance, 1, 'COMMA', 2, 'POINT') + ' ₽)'}"
+                            th:selected="${form.fromAccountId == acc.id}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>На счёт</label>
+                <select name="toAccountId" required>
+                    <option value="" disabled selected>Выберите счёт</option>
+                    <option th:each="acc : ${accounts}"
+                            th:value="${acc.id}"
+                            th:text="${acc.name + ' (' + #numbers.formatDecimal(acc.balance, 1, 'COMMA', 2, 'POINT') + ' ₽)'}"
+                            th:selected="${form.toAccountId == acc.id}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Сумма (₽)</label>
+                <input type="number" name="amount" step="0.01" min="0.01" th:value="${form.amount}" required/>
+            </div>
+            <div class="form-group">
+                <label>Описание (необязательно)</label>
+                <textarea name="description" th:text="${form.description}"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Перевести</button>
+        </form>
+    </div>
+
+    <h2>История переводов</h2>
+    <div th:if="${#lists.isEmpty(transfers)}" style="color:#888">Переводов нет.</div>
+    <div class="table-wrap" th:unless="${#lists.isEmpty(transfers)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Откуда</th>
+                <th>Куда</th>
+                <th>Сумма</th>
+                <th>Описание</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${transfers}">
+                <td th:text="${#temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                <td th:text="${t.from.name}"></td>
+                <td th:text="${t.to.name}"></td>
+                <td th:text="${#numbers.formatDecimal(t.amount, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                <td th:text="${t.description}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

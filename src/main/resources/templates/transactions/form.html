@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Новая транзакция')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1>Новая транзакция</h1>
+    <div class="form-wrap">
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <div th:if="${#lists.isEmpty(accounts)}" class="alert alert-error">
+            Нет счетов. <a th:href="@{/accounts/new}">Создайте счёт</a> перед добавлением транзакции.
+        </div>
+
+        <form th:action="@{/transactions/new}" method="post" th:unless="${#lists.isEmpty(accounts)}">
+            <div class="form-group">
+                <label>Счёт</label>
+                <select name="accountId" required>
+                    <option value="" disabled selected>Выберите счёт</option>
+                    <option th:each="acc : ${accounts}"
+                            th:value="${acc.id}"
+                            th:text="${acc.name + ' (' + #numbers.formatDecimal(acc.balance, 1, 'COMMA', 2, 'POINT') + ' ₽)'}"
+                            th:selected="${form.accountId == acc.id}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Тип</label>
+                <select name="isIncome" id="typeSelect" required onchange="filterCategories()">
+                    <option value="" disabled selected>Выберите тип</option>
+                    <option value="true"  th:selected="${form.isIncome == true}">Доход</option>
+                    <option value="false" th:selected="${form.isIncome == false}">Расход</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <select name="categoryId" id="categorySelect" required>
+                    <option value="" disabled selected>Сначала выберите тип</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:attr="data-income=${cat.isIncome}"
+                            th:selected="${form.categoryId == cat.id}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Сумма (₽)</label>
+                <input type="number" name="amount" step="0.01" min="0.01"
+                       th:value="${form.amount}" required/>
+            </div>
+            <div class="form-group">
+                <label>Описание (необязательно)</label>
+                <textarea name="description" th:text="${form.description}"></textarea>
+            </div>
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a th:href="@{/transactions}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function filterCategories() {
+    const typeSelect = document.getElementById('typeSelect');
+    const catSelect  = document.getElementById('categorySelect');
+    const isIncome   = typeSelect.value;
+    if (!isIncome) return;
+    Array.from(catSelect.options).forEach(opt => {
+        if (!opt.value) return;
+        opt.hidden = (opt.dataset.income !== (isIncome === 'true' ? 'true' : 'false'));
+    });
+    catSelect.value = '';
+}
+document.addEventListener('DOMContentLoaded', filterCategories);
+</script>
+</body>
+</html>

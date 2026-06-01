@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Login Page</h1>
-
-<!-- Display error message if 'error' parameter is present in URL -->
-<div th:if="${param.error}" style="color:red">
-    Invalid username and password.
-</div>
-
-<!-- Display logout message if 'logout' parameter is present in URL -->
-<div th:if="${param.logout}" style="color:green">
-    You have been logged out.
-</div>
-
-<form th:action="@{/login}" method="post">
-    <div>
-        <label>User Name: <input type="text" name="username" required/></label>
+<div class="auth-wrap">
+    <div class="auth-box">
+        <h1>Вход</h1>
+        <div class="alert alert-error" th:if="${param.error}">Неверный логин или пароль.</div>
+        <div class="alert alert-success" th:if="${param.logout}">Вы вышли из системы.</div>
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label>Логин</label>
+                <input type="text" name="username" required autofocus/>
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" name="password" required/>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%">Войти</button>
+        </form>
+        <div class="auth-link">Нет аккаунта? <a th:href="@{/registration}">Зарегистрироваться</a></div>
     </div>
-    <div>
-        <label>Password: <input type="password" name="password" required/></label>
-    </div>
-    <button type="submit">Log In</button>
-</form>
+</div>
 </body>
 </html>

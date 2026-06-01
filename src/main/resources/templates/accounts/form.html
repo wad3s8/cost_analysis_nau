@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Счёт')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1 th:text="${accountId != null ? 'Редактировать счёт' : 'Новый счёт'}"></h1>
+    <div class="form-wrap">
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <form th:action="${accountId != null ? '/accounts/' + accountId + '/edit' : '/accounts/new'}" method="post">
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" name="name" th:value="${form.name}" required/>
+            </div>
+            <div class="form-group">
+                <label>Начальный баланс (₽)</label>
+                <input type="number" name="balance" step="0.01" th:value="${form.balance}" th:readonly="${accountId != null}"/>
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea name="description" th:text="${form.description}"></textarea>
+            </div>
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a th:href="@{/accounts}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Категории')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <div class="section-header">
+        <h1>Категории</h1>
+        <a th:href="@{/categories/new}" class="btn btn-success">+ Добавить категорию</a>
+    </div>
+
+    <div class="category-group">
+        <h2>Доходы</h2>
+        <div th:if="${#lists.isEmpty(incomeCategories)}" style="color:#888;margin-bottom:16px">Нет категорий доходов.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(incomeCategories)}">
+            <table>
+                <thead>
+                <tr><th>Название</th><th>Действия</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="cat : ${incomeCategories}">
+                    <td><span class="badge income" th:text="${cat.name}"></span></td>
+                    <td class="actions">
+                        <a th:href="@{/categories/{id}/edit(id=${cat.id})}" class="btn btn-sm btn-secondary">Изменить</a>
+                        <form th:action="@{/categories/{id}/delete(id=${cat.id})}" method="post" style="display:inline"
+                              onsubmit="return confirm('Удалить категорию?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="category-group">
+        <h2>Расходы</h2>
+        <div th:if="${#lists.isEmpty(expenseCategories)}" style="color:#888;margin-bottom:16px">Нет категорий расходов.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(expenseCategories)}">
+            <table>
+                <thead>
+                <tr><th>Название</th><th>Действия</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="cat : ${expenseCategories}">
+                    <td><span class="badge expense" th:text="${cat.name}"></span></td>
+                    <td class="actions">
+                        <a th:href="@{/categories/{id}/edit(id=${cat.id})}" class="btn btn-sm btn-secondary">Изменить</a>
+                        <form th:action="@{/categories/{id}/delete(id=${cat.id})}" method="post" style="display:inline"
+                              onsubmit="return confirm('Удалить категорию?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

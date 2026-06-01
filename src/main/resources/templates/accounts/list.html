@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Счета')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <div class="section-header">
+        <h1>Счета</h1>
+        <a th:href="@{/accounts/new}" class="btn btn-success">+ Добавить счёт</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(accounts)}" style="color:#888">
+        Счетов нет. Создайте первый.
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(accounts)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Название</th>
+                <th>Баланс</th>
+                <th>Описание</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="acc : ${accounts}">
+                <td th:text="${acc.name}"></td>
+                <td th:text="${#numbers.formatDecimal(acc.balance, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                <td th:text="${acc.description}"></td>
+                <td class="actions">
+                    <a th:href="@{/accounts/{id}/edit(id=${acc.id})}" class="btn btn-sm btn-secondary">Изменить</a>
+                    <form th:action="@{/accounts/{id}/delete(id=${acc.id})}" method="post" style="display:inline"
+                          onsubmit="return confirm('Удалить счёт?')">
+                        <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card" style="max-width:260px;margin-top:8px">
+        <div class="label">Общий баланс</div>
+        <div class="value" th:text="${#numbers.formatDecimal(totalBalance, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></div>
+    </div>
+</div>
+</body>
+</html>

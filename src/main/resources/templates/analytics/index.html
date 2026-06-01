@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Аналитика')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1>Аналитика</h1>
+
+    <!-- Период -->
+    <form class="filters" method="get" th:action="@{/analytics}">
+        <div class="form-group">
+            <label>С</label>
+            <input type="datetime-local" name="from"
+                   th:value="${#temporals.format(from, 'yyyy-MM-dd''T''HH:mm')}"/>
+        </div>
+        <div class="form-group">
+            <label>По</label>
+            <input type="datetime-local" name="to"
+                   th:value="${#temporals.format(to, 'yyyy-MM-dd''T''HH:mm')}"/>
+        </div>
+        <div class="form-group" style="min-width:auto">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn btn-primary">Применить</button>
+        </div>
+    </form>
+
+    <!-- Сводка -->
+    <div class="cards">
+        <div class="card">
+            <div class="label">Доходы за период</div>
+            <div class="value income" th:text="${#numbers.formatDecimal(totalIncome, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></div>
+        </div>
+        <div class="card">
+            <div class="label">Расходы за период</div>
+            <div class="value expense" th:text="${#numbers.formatDecimal(totalExpense, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></div>
+        </div>
+        <div class="card">
+            <div class="label">Баланс за период</div>
+            <div class="value" th:classappend="${balance >= 0 ? 'income' : 'expense'}"
+                 th:text="${#numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></div>
+        </div>
+    </div>
+
+    <!-- По категориям -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+            <h2>Доходы по категориям</h2>
+            <div th:if="${#maps.isEmpty(incomeByCategory)}" style="color:#888">Нет данных.</div>
+            <div class="table-wrap" th:unless="${#maps.isEmpty(incomeByCategory)}">
+                <table>
+                    <thead><tr><th>Категория</th><th>Сумма</th></tr></thead>
+                    <tbody>
+                    <tr th:each="entry : ${incomeByCategory}">
+                        <td><span class="badge income" th:text="${entry.key}"></span></td>
+                        <td class="amount-income"
+                            th:text="${#numbers.formatDecimal(entry.value, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h2>Расходы по категориям</h2>
+            <div th:if="${#maps.isEmpty(expenseByCategory)}" style="color:#888">Нет данных.</div>
+            <div class="table-wrap" th:unless="${#maps.isEmpty(expenseByCategory)}">
+                <table>
+                    <thead><tr><th>Категория</th><th>Сумма</th></tr></thead>
+                    <tbody>
+                    <tr th:each="entry : ${expenseByCategory}">
+                        <td><span class="badge expense" th:text="${entry.key}"></span></td>
+                        <td class="amount-expense"
+                            th:text="${#numbers.formatDecimal(entry.value, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

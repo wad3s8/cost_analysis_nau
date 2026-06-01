@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' — Финансы'">Финансы</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<nav th:fragment="nav">
+    <span class="nav-brand">💰 Финансы</span>
+    <a th:href="@{/}" href="/">Главная</a>
+    <a th:href="@{/transactions}" href="/transactions">Транзакции</a>
+    <a th:href="@{/accounts}" href="/accounts">Счета</a>
+    <a th:href="@{/categories}" href="/categories">Категории</a>
+    <a th:href="@{/transfers}" href="/transfers">Переводы</a>
+    <a th:href="@{/analytics}" href="/analytics">Аналитика</a>
+    <div class="nav-right">
+        <span class="nav-user" sec:authentication="name"></span>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">Пользователи</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit" class="btn btn-sm btn-secondary">Выйти</button>
+        </form>
+    </div>
+</nav>
+</html>

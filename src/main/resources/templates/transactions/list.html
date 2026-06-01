@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Транзакции')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <div class="section-header">
+        <h1>Транзакции</h1>
+        <a th:href="@{/transactions/new}" class="btn btn-success">+ Добавить</a>
+    </div>
+
+    <!-- Фильтры -->
+    <form class="filters" method="get" th:action="@{/transactions}">
+        <div class="form-group">
+            <label>Категория</label>
+            <select name="categoryId">
+                <option value="">Все</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.id}"
+                        th:text="${cat.name}"
+                        th:selected="${cat.id == selectedCategory}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Тип</label>
+            <select name="isIncome">
+                <option value="">Все</option>
+                <option value="true"  th:selected="${selectedType == true}">Доход</option>
+                <option value="false" th:selected="${selectedType == false}">Расход</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>С</label>
+            <input type="datetime-local" name="from"
+                   th:value="${from != null ? #temporals.format(from, 'yyyy-MM-dd''T''HH:mm') : ''}"/>
+        </div>
+        <div class="form-group">
+            <label>По</label>
+            <input type="datetime-local" name="to"
+                   th:value="${to != null ? #temporals.format(to, 'yyyy-MM-dd''T''HH:mm') : ''}"/>
+        </div>
+        <div class="form-group" style="min-width:auto">
+            <label>&nbsp;</label>
+            <div style="display:flex;gap:8px">
+                <button type="submit" class="btn btn-primary">Найти</button>
+                <a th:href="@{/transactions}" class="btn btn-secondary">Сброс</a>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(transactions)}" style="color:#888">
+        Транзакций не найдено.
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(transactions)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Счёт</th>
+                <th>Категория</th>
+                <th>Сумма</th>
+                <th>Тип</th>
+                <th>Описание</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${transactions}">
+                <td th:text="${#temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                <td th:text="${t.account.name}"></td>
+                <td th:text="${t.category.name}"></td>
+                <td th:class="${t.income ? 'amount-income' : 'amount-expense'}"
+                    th:text="${(t.income ? '+' : '-') + #numbers.formatDecimal(t.amount, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                <td>
+                    <span th:class="${t.income ? 'badge income' : 'badge expense'}"
+                          th:text="${t.income ? 'Доход' : 'Расход'}"></span>
+                </td>
+                <td th:text="${t.description}"></td>
+                <td>
+                    <form th:action="@{/transactions/{id}/delete(id=${t.id})}" method="post"
+                          onsubmit="return confirm('Удалить транзакцию? Баланс счёта будет пересчитан.')">
+                        <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

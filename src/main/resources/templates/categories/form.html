@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Категория')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1 th:text="${categoryId != null ? 'Редактировать категорию' : 'Новая категория'}"></h1>
+    <div class="form-wrap">
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <form th:action="${categoryId != null ? '/categories/' + categoryId + '/edit' : '/categories/new'}" method="post">
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" name="name" th:value="${form.name}" required/>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" name="isIncome" id="isIncome" th:checked="${form.isIncome}"/>
+                <label for="isIncome">Доход (снять галочку — расход)</label>
+            </div>
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a th:href="@{/categories}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

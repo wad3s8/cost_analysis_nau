@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Главная')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1>Добро пожаловать, <span th:text="${user.login}"></span>!</h1>
+
+    <div class="cards">
+        <div class="card">
+            <div class="label">Общий баланс</div>
+            <div class="value" th:text="${#numbers.formatDecimal(totalBalance, 1, 'COMMA', 2, 'POINT')} + ' ₽'"></div>
+        </div>
+        <div class="card">
+            <div class="label">Счетов</div>
+            <div class="value" th:text="${#lists.size(accounts)}"></div>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <h2>Последние транзакции</h2>
+        <a th:href="@{/transactions}" class="btn btn-primary btn-sm">Все транзакции</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(recentTransactions)}" style="color:#888;margin-bottom:20px">
+        Транзакций пока нет. <a th:href="@{/transactions/new}">Добавить первую</a>
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(recentTransactions)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Счёт</th>
+                <th>Категория</th>
+                <th>Сумма</th>
+                <th>Тип</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${recentTransactions}">
+                <td th:text="${#temporals.format(t.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                <td th:text="${t.account.name}"></td>
+                <td th:text="${t.category.name}"></td>
+                <td th:class="${t.income ? 'amount-income' : 'amount-expense'}"
+                    th:text="${(t.income ? '+' : '-') + #numbers.formatDecimal(t.amount, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                <td>
+                    <span th:class="${t.income ? 'badge income' : 'badge expense'}"
+                          th:text="${t.income ? 'Доход' : 'Расход'}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-header" style="margin-top:12px">
+        <h2>Счета</h2>
+        <a th:href="@{/accounts/new}" class="btn btn-success btn-sm">+ Добавить счёт</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(accounts)}" style="color:#888">
+        Счетов нет. <a th:href="@{/accounts/new}">Создать счёт</a>
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(accounts)}">
+        <table>
+            <thead>
+            <tr>
+                <th>Название</th>
+                <th>Баланс</th>
+                <th>Описание</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="acc : ${accounts}">
+                <td th:text="${acc.name}"></td>
+                <td th:text="${#numbers.formatDecimal(acc.balance, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                <td th:text="${acc.description}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
