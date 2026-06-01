@@ -7,148 +7,83 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.vladislav.cost_analysis_nau.controller.TransactionController;
-import ru.vladislav.cost_analysis_nau.entity.Category;
-import ru.vladislav.cost_analysis_nau.entity.Transaction;
-import ru.vladislav.cost_analysis_nau.repository.AccountRepository;
-import ru.vladislav.cost_analysis_nau.repository.CategoryRepository;
-import ru.vladislav.cost_analysis_nau.repository.TransactionRepository;
+import ru.vladislav.cost_analysis_nau.entity.Role;
+import ru.vladislav.cost_analysis_nau.entity.User;
+import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
+import ru.vladislav.cost_analysis_nau.service.AccountService;
+import ru.vladislav.cost_analysis_nau.service.CategoryService;
+import ru.vladislav.cost_analysis_nau.service.TransactionService;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class TransactionControllerTest {
 
-    @Mock
-    private TransactionRepository transactionRepository;
-
-    @Mock
-    private CategoryRepository categoryRepository;
-
-    @Mock
-    private AccountRepository accountRepository;
+    @Mock private TransactionService transactionService;
+    @Mock private AccountService accountService;
+    @Mock private CategoryService categoryService;
+    @Mock private UsersRepository usersRepository;
 
     @InjectMocks
     private TransactionController transactionController;
 
     private MockMvc mockMvc;
-
-    private Category foodCategory;
-    private Transaction sampleTransaction;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(transactionController)
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(transactionController).build();
 
-        foodCategory = new Category();
-        foodCategory.setId(1L);
-        foodCategory.setName("Food");
-        foodCategory.setIncome(false);
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setLogin("testuser");
+        testUser.setRole(Role.USER);
 
-        sampleTransaction = new Transaction();
-        sampleTransaction.setId(1L);
-        sampleTransaction.setAmount(250.0);
-        sampleTransaction.setIncome(false);
-        sampleTransaction.setCreatedAt(Timestamp.from(Instant.now()));
-        sampleTransaction.setCategory(foodCategory);
+        when(usersRepository.findByLogin("testuser")).thenReturn(testUser);
+        when(transactionService.getByUser(testUser)).thenReturn(List.of());
+        when(categoryService.getAll()).thenReturn(List.of());
+        when(accountService.getAccountsByUser(testUser)).thenReturn(List.of());
     }
 
-    // ─── GET /{accountId}/byCategory ─────────────────────────────────────────
+    private Authentication mockAuth() {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+        return auth;
+    }
 
     @Test
-    @DisplayName("byCategory: категория и счёт существуют — возвращает 200 и список транзакций")
-    void getByCategory_ValidParams_Returns200() throws Exception {
-        when(categoryRepository.existsCategoryByName("Food")).thenReturn(true);
-        when(accountRepository.existsAccountById(1L)).thenReturn(true);
-        when(categoryRepository.findCategoryByName("Food")).thenReturn(foodCategory);
-        when(transactionRepository.findTransactionsByAccountIdAndCategory(1L, foodCategory))
-                .thenReturn(List.of(sampleTransaction));
-
-        mockMvc.perform(get("/transaction-custom/1/byCategory")
-                        .param("nameCategory", "Food"))
+    @DisplayName("GET /transactions — возвращает страницу со списком транзакций")
+    void getTransactions_Returns200AndListView() throws Exception {
+        mockMvc.perform(get("/transactions")
+                        .principal(mockAuth()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].amount").value(250.0));
+                .andExpect(view().name("transactions/list"))
+                .andExpect(model().attributeExists("transactions"))
+                .andExpect(model().attributeExists("categories"));
     }
 
     @Test
-    @DisplayName("byCategory: категория не существует — возвращает 404")
-    void getByCategory_CategoryNotFound_Returns404() throws Exception {
-        when(categoryRepository.existsCategoryByName("Unknown")).thenReturn(false);
-
-        mockMvc.perform(get("/transaction-custom/1/byCategory")
-                        .param("nameCategory", "Unknown"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("byCategory: счёт не существует — возвращает 404")
-    void getByCategory_AccountNotFound_Returns404() throws Exception {
-        when(categoryRepository.existsCategoryByName("Food")).thenReturn(true);
-        when(accountRepository.existsAccountById(99L)).thenReturn(false);
-
-        mockMvc.perform(get("/transaction-custom/99/byCategory")
-                        .param("nameCategory", "Food"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("byCategory: нет транзакций по фильтру — возвращает пустой список")
-    void getByCategory_NoTransactions_ReturnsEmptyList() throws Exception {
-        when(categoryRepository.existsCategoryByName("Food")).thenReturn(true);
-        when(accountRepository.existsAccountById(1L)).thenReturn(true);
-        when(categoryRepository.findCategoryByName("Food")).thenReturn(foodCategory);
-        when(transactionRepository.findTransactionsByAccountIdAndCategory(1L, foodCategory))
-                .thenReturn(List.of());
-
-        mockMvc.perform(get("/transaction-custom/1/byCategory")
-                        .param("nameCategory", "Food"))
+    @DisplayName("GET /transactions/new — возвращает форму добавления транзакции")
+    void getNewTransactionForm_Returns200AndFormView() throws Exception {
+        mockMvc.perform(get("/transactions/new")
+                        .principal(mockAuth()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    // ─── GET /{accountId}/byAccount ──────────────────────────────────────────
-
-    @Test
-    @DisplayName("byAccount: счёт существует — возвращает 200 и список транзакций")
-    void getByAccount_ValidAccount_Returns200() throws Exception {
-        when(accountRepository.existsAccountById(1L)).thenReturn(true);
-        when(transactionRepository.findByAccountIdOrderByTimestampDesc(1L))
-                .thenReturn(List.of(sampleTransaction));
-
-        mockMvc.perform(get("/transaction-custom/1/byAccount"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
-    }
-
-    @Test
-    @DisplayName("byAccount: счёт не существует — возвращает 404")
-    void getByAccount_AccountNotFound_Returns404() throws Exception {
-        when(accountRepository.existsAccountById(99L)).thenReturn(false);
-
-        mockMvc.perform(get("/transaction-custom/99/byAccount"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("byAccount: нет транзакций — возвращает пустой список")
-    void getByAccount_NoTransactions_ReturnsEmptyList() throws Exception {
-        when(accountRepository.existsAccountById(1L)).thenReturn(true);
-        when(transactionRepository.findByAccountIdOrderByTimestampDesc(1L))
-                .thenReturn(List.of());
-
-        mockMvc.perform(get("/transaction-custom/1/byAccount"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(view().name("transactions/form"))
+                .andExpect(model().attributeExists("form"))
+                .andExpect(model().attributeExists("accounts"))
+                .andExpect(model().attributeExists("categories"));
     }
 }

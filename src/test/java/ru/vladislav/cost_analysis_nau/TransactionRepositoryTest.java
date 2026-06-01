@@ -5,15 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.vladislav.cost_analysis_nau.entity.Account;
-import ru.vladislav.cost_analysis_nau.entity.Category;
-import ru.vladislav.cost_analysis_nau.entity.Transaction;
+import ru.vladislav.cost_analysis_nau.entity.*;
 import ru.vladislav.cost_analysis_nau.repository.AccountRepository;
 import ru.vladislav.cost_analysis_nau.repository.CategoryRepository;
 import ru.vladislav.cost_analysis_nau.repository.TransactionRepository;
+import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,22 +32,35 @@ class TransactionRepositoryTest {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final UsersRepository usersRepository;
 
     @Autowired
     TransactionRepositoryTest(TransactionRepository transactionRepository,
                               AccountRepository accountRepository,
-                              CategoryRepository categoryRepository) {
+                              CategoryRepository categoryRepository,
+                              UsersRepository usersRepository) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
+        this.usersRepository = usersRepository;
+    }
+
+    private User createTestUser() {
+        User user = new User();
+        user.setLogin("user_" + UUID.randomUUID());
+        user.setPassword("password");
+        user.setRole(Role.USER);
+        return usersRepository.save(user);
     }
 
     @Test
     void testFindByAccountIdOrderByTimestampDesc() {
+        User user = createTestUser();
+
         Account account = new Account();
         account.setName("Account_" + UUID.randomUUID());
         account.setBalance(1000.0);
-        account.setDescription("Test account");
+        account.setUser(user);
         account = accountRepository.save(account);
 
         Category category = new Category();
@@ -62,7 +73,7 @@ class TransactionRepositoryTest {
         transaction1.setCategory(category);
         transaction1.setAmount(100.0);
         transaction1.setIncome(false);
-        transaction1.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60)));
+        transaction1.setCreatedAt(LocalDateTime.now().minusMinutes(1));
         transactionRepository.save(transaction1);
 
         Transaction transaction2 = new Transaction();
@@ -70,7 +81,7 @@ class TransactionRepositoryTest {
         transaction2.setCategory(category);
         transaction2.setAmount(200.0);
         transaction2.setIncome(false);
-        transaction2.setCreatedAt(Timestamp.from(Instant.now()));
+        transaction2.setCreatedAt(LocalDateTime.now());
         transactionRepository.save(transaction2);
 
         List<Transaction> foundTransactions =
@@ -84,10 +95,12 @@ class TransactionRepositoryTest {
 
     @Test
     void testFindTransactionsByAccountAndCategory() {
+        User user = createTestUser();
+
         Account account = new Account();
         account.setName("Account_" + UUID.randomUUID());
         account.setBalance(500.0);
-        account.setDescription("Test account");
+        account.setUser(user);
         account = accountRepository.save(account);
 
         Category category = new Category();
@@ -100,11 +113,11 @@ class TransactionRepositoryTest {
         transaction.setCategory(category);
         transaction.setAmount(150.0);
         transaction.setIncome(false);
-        transaction.setCreatedAt(Timestamp.from(Instant.now()));
+        transaction.setCreatedAt(LocalDateTime.now());
         transaction = transactionRepository.save(transaction);
 
         List<Transaction> foundTransactions =
-                transactionRepository.findTransactionsByAccountIdAndCategory(account.getId(), category);
+                transactionRepository.findByAccountIdAndCategory(account.getId(), category);
 
         Assertions.assertNotNull(foundTransactions);
         Assertions.assertEquals(1, foundTransactions.size());
@@ -115,10 +128,12 @@ class TransactionRepositoryTest {
 
     @Test
     void testFindTransactionsByAccountAndCategoryEmpty() {
+        User user = createTestUser();
+
         Account account = new Account();
         account.setName("Account_" + UUID.randomUUID());
         account.setBalance(700.0);
-        account.setDescription("Test account");
+        account.setUser(user);
         account = accountRepository.save(account);
 
         Category category = new Category();
@@ -127,7 +142,7 @@ class TransactionRepositoryTest {
         category = categoryRepository.save(category);
 
         List<Transaction> foundTransactions =
-                transactionRepository.findTransactionsByAccountIdAndCategory(account.getId(), category);
+                transactionRepository.findByAccountIdAndCategory(account.getId(), category);
 
         Assertions.assertNotNull(foundTransactions);
         Assertions.assertTrue(foundTransactions.isEmpty());

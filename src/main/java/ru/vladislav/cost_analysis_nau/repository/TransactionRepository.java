@@ -18,6 +18,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("select t from Transaction t where t.account.user.id = :userId order by t.createdAt desc")
     List<Transaction> findByUserId(@Param("userId") Long userId);
 
+    @Query("select t from Transaction t where t.account.id = :accountId order by t.createdAt desc")
+    List<Transaction> findByAccountIdOrderByTimestampDesc(@Param("accountId") Long accountId);
+
     @Query("""
         select t from Transaction t
         where t.account.user.id = :userId

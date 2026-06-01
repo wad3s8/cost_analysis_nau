@@ -6,8 +6,13 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import ru.vladislav.cost_analysis_nau.entity.Role;
+import ru.vladislav.cost_analysis_nau.entity.User;
+import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -37,7 +42,15 @@ class TransactionControllerRestAssuredTest {
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private UsersRepository usersRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private CookieFilter cookieFilter;
+    private static final String TEST_LOGIN = "restassured_test_user";
+    private static final String TEST_PASSWORD = "testpassword123";
 
     @BeforeEach
     void setUp() {
@@ -45,115 +58,99 @@ class TransactionControllerRestAssuredTest {
         RestAssured.baseURI = "http://localhost";
         RestAssured.proxy = null;
 
+        // Создаём тестового пользователя если нет
+        if (usersRepository.findByLogin(TEST_LOGIN) == null) {
+            User user = new User();
+            user.setLogin(TEST_LOGIN);
+            user.setPassword(passwordEncoder.encode(TEST_PASSWORD));
+            user.setRole(Role.USER);
+            usersRepository.save(user);
+        }
+
         cookieFilter = new CookieFilter();
 
         given()
                 .filter(cookieFilter)
                 .redirects().follow(true)
                 .contentType(ContentType.URLENC)
-                .formParam("username", "testuser")
-                .formParam("password", "testpassword")
+                .formParam("username", TEST_LOGIN)
+                .formParam("password", TEST_PASSWORD)
                 .when()
                 .post("/login")
                 .then()
                 .statusCode(anyOf(is(200), is(302)));
     }
 
-    // ─── GET /{accountId}/byAccount ──────────────────────────────────────────
+    // ─── Защищённые страницы ─────────────────────────────────────────────────
 
     @Test
-    @DisplayName("byAccount: авторизованный запрос — возвращает 200 и массив")
-    void byAccount_Authorized_Returns200() {
+    @DisplayName("Главная: авторизованный запрос — возвращает 200")
+    void dashboard_Authorized_Returns200() {
         given()
                 .filter(cookieFilter)
-                .redirects().follow(false)
-                .accept(ContentType.JSON)
+                .redirects().follow(true)
                 .when()
-                .get("/transaction-custom/1/byAccount")
+                .get("/")
                 .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .body("$", instanceOf(java.util.List.class));
+                .statusCode(200);
     }
 
     @Test
-    @DisplayName("byAccount: несуществующий счёт — возвращает 404")
-    void byAccount_AccountNotFound_Returns404() {
+    @DisplayName("Транзакции: авторизованный запрос — возвращает 200")
+    void transactions_Authorized_Returns200() {
         given()
                 .filter(cookieFilter)
-                .redirects().follow(false)
-                .accept(ContentType.JSON)
+                .redirects().follow(true)
                 .when()
-                .get("/transaction-custom/99999/byAccount")
+                .get("/transactions")
                 .then()
-                .statusCode(404);
+                .statusCode(200);
     }
 
     @Test
-    @DisplayName("byAccount: без авторизации — редирект на /login (302 или 401)")
-    void byAccount_Unauthorized_Returns302Or401() {
+    @DisplayName("Счета: авторизованный запрос — возвращает 200")
+    void accounts_Authorized_Returns200() {
+        given()
+                .filter(cookieFilter)
+                .redirects().follow(true)
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("Аналитика: авторизованный запрос — возвращает 200")
+    void analytics_Authorized_Returns200() {
+        given()
+                .filter(cookieFilter)
+                .redirects().follow(true)
+                .when()
+                .get("/analytics")
+                .then()
+                .statusCode(200);
+    }
+
+    // ─── Без авторизации ──────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("Главная: без авторизации — редирект на /login")
+    void dashboard_Unauthorized_RedirectsToLogin() {
         given()
                 .redirects().follow(false)
                 .when()
-                .get("/transaction-custom/1/byAccount")
+                .get("/")
                 .then()
                 .statusCode(anyOf(is(302), is(401)));
     }
 
-    // ─── GET /{accountId}/byCategory ─────────────────────────────────────────
-
     @Test
-    @DisplayName("byCategory: существующая категория — возвращает 200 и массив")
-    void byCategory_ValidCategory_Returns200() {
-        given()
-                .filter(cookieFilter)
-                .redirects().follow(false)
-                .accept(ContentType.JSON)
-                .queryParam("nameCategory", "Food")
-                .when()
-                .get("/transaction-custom/1/byCategory")
-                .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .body("$", instanceOf(java.util.List.class));
-    }
-
-    @Test
-    @DisplayName("byCategory: несуществующая категория — возвращает 404")
-    void byCategory_CategoryNotFound_Returns404() {
-        given()
-                .filter(cookieFilter)
-                .redirects().follow(false)
-                .accept(ContentType.JSON)
-                .queryParam("nameCategory", "НесуществующаяКатегория_xyz")
-                .when()
-                .get("/transaction-custom/1/byCategory")
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    @DisplayName("byCategory: несуществующий счёт — возвращает 404")
-    void byCategory_AccountNotFound_Returns404() {
-        given()
-                .filter(cookieFilter)
-                .redirects().follow(false)
-                .accept(ContentType.JSON)
-                .queryParam("nameCategory", "Food")
-                .when()
-                .get("/transaction-custom/99999/byCategory")
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    @DisplayName("byCategory: без авторизации — редирект на /login (302 или 401)")
-    void byCategory_Unauthorized_Returns302Or401() {
+    @DisplayName("Транзакции: без авторизации — редирект на /login")
+    void transactions_Unauthorized_RedirectsToLogin() {
         given()
                 .redirects().follow(false)
-                .queryParam("nameCategory", "Food")
                 .when()
-                .get("/transaction-custom/1/byCategory")
+                .get("/transactions")
                 .then()
                 .statusCode(anyOf(is(302), is(401)));
     }
