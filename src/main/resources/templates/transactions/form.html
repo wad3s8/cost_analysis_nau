@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{layout :: head('Новая транзакция')}"></head>
+<head th:replace="~{layout :: head(${transactionId != null ? 'Редактировать транзакцию' : 'Новая транзакция'})}"></head>
 <body>
 <nav th:replace="~{layout :: nav}"></nav>
 <div class="container">
-    <h1>Новая транзакция</h1>
+    <h1 th:text="${transactionId != null ? 'Редактировать транзакцию' : 'Новая транзакция'}"></h1>
     <div class="form-wrap">
         <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
 
@@ -13,7 +13,8 @@
             Нет счетов. <a th:href="@{/accounts/new}">Создайте счёт</a> перед добавлением транзакции.
         </div>
 
-        <form th:action="@{/transactions/new}" method="post" th:unless="${#lists.isEmpty(accounts)}">
+        <form th:action="${transactionId != null ? '/transactions/' + transactionId + '/edit' : '/transactions/new'}"
+              method="post" th:unless="${#lists.isEmpty(accounts)}">
             <div class="form-group">
                 <label>Счёт</label>
                 <select name="accountId" required>
@@ -69,7 +70,8 @@ function filterCategories() {
         if (!opt.value) return;
         opt.hidden = (opt.dataset.income !== (isIncome === 'true' ? 'true' : 'false'));
     });
-    catSelect.value = '';
+    const selected = catSelect.querySelector('option:checked');
+    if (selected && selected.hidden) catSelect.value = '';
 }
 document.addEventListener('DOMContentLoaded', filterCategories);
 </script>

@@ -78,7 +78,8 @@
                           th:text="${t.income ? 'Доход' : 'Расход'}"></span>
                 </td>
                 <td th:text="${t.description}"></td>
-                <td>
+                <td style="display:flex;gap:6px;flex-wrap:wrap">
+                    <a th:href="@{/transactions/{id}/edit(id=${t.id})}" class="btn btn-sm btn-secondary">Изменить</a>
                     <form th:action="@{/transactions/{id}/delete(id=${t.id})}" method="post"
                           onsubmit="return confirm('Удалить транзакцию? Баланс счёта будет пересчитан.')">
                         <button type="submit" class="btn btn-sm btn-danger">Удалить</button>

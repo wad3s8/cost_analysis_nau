@@ -79,6 +79,41 @@ public class TransactionController {
         }
     }
 
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, Authentication auth) {
+        User user = currentUser(auth);
+        var transaction = transactionService.getById(id, user);
+        TransactionForm form = new TransactionForm();
+        form.setAccountId(transaction.getAccount().getId());
+        form.setCategoryId(transaction.getCategory().getId());
+        form.setAmount(transaction.getAmount());
+        form.setIncome(transaction.isIncome());
+        form.setDescription(transaction.getDescription());
+        model.addAttribute("form", form);
+        model.addAttribute("transactionId", id);
+        model.addAttribute("accounts", accountService.getAccountsByUser(user));
+        model.addAttribute("categories", categoryService.getAll());
+        return "transactions/form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String update(@PathVariable Long id, @ModelAttribute TransactionForm form,
+                         Authentication auth, Model model) {
+        try {
+            transactionService.update(id, form, currentUser(auth));
+            return "redirect:/transactions";
+        } catch (Exception e) {
+            log.error("Error updating transaction {}: {}", id, e.getMessage());
+            User user = currentUser(auth);
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("form", form);
+            model.addAttribute("transactionId", id);
+            model.addAttribute("accounts", accountService.getAccountsByUser(user));
+            model.addAttribute("categories", categoryService.getAll());
+            return "transactions/form";
+        }
+    }
+
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, Authentication auth) {
         transactionService.delete(id, currentUser(auth));

@@ -78,6 +78,52 @@ public class TransactionService {
     }
 
     @Transactional
+    public Transaction update(Long id, TransactionForm form, User user) {
+        Transaction transaction = getById(id, user);
+
+        Account oldAccount = transaction.getAccount();
+        if (transaction.isIncome()) {
+            oldAccount.setBalance(oldAccount.getBalance() - transaction.getAmount());
+        } else {
+            oldAccount.setBalance(oldAccount.getBalance() + transaction.getAmount());
+        }
+
+        Account newAccount = accountRepository.findById(form.getAccountId())
+                .filter(a -> a.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        Category category = categoryRepository.findById(form.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        if (category.isIncome() != form.isIncome()) {
+            throw new RuntimeException("Category type does not match transaction type");
+        }
+
+        if (form.isIncome()) {
+            newAccount.setBalance(newAccount.getBalance() + form.getAmount());
+        } else {
+            if (newAccount.getBalance() < form.getAmount()) {
+                throw new RuntimeException("Insufficient balance");
+            }
+            newAccount.setBalance(newAccount.getBalance() - form.getAmount());
+        }
+
+        if (!oldAccount.getId().equals(newAccount.getId())) {
+            accountRepository.save(oldAccount);
+        }
+        accountRepository.save(newAccount);
+
+        transaction.setAccount(newAccount);
+        transaction.setCategory(category);
+        transaction.setAmount(form.getAmount());
+        transaction.setIncome(form.isIncome());
+        transaction.setDescription(form.getDescription());
+
+        log.info("Transaction {} updated by user '{}'", id, user.getLogin());
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional
     public void delete(Long id, User user) {
         Transaction transaction = getById(id, user);
 
