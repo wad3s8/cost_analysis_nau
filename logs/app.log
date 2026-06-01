@@ -5,3 +5,5 @@
 2026-06-01 18:19:10.719 [http-nio-8080-exec-3] INFO  r.v.c.configuration.SecurityEventListener - User 'wad3s' logged in
 2026-06-01 18:19:25.594 [http-nio-8080-exec-6] INFO  r.v.cost_analysis_nau.service.AccountService - Creating account 'Сбер урфу' for user 'wad3s'
 2026-06-01 18:19:51.113 [http-nio-8080-exec-1] INFO  r.v.cost_analysis_nau.service.AccountService - Creating account 'сбер зарплата' for user 'wad3s'
+2026-06-01 17:26:32.426 [main] INFO  r.v.cost_analysis_nau.CostAnalysisNauApplication - Starting CostAnalysisNauApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-01 17:26:32.438 [main] INFO  r.v.cost_analysis_nau.CostAnalysisNauApplication - No active profile set, falling back to 1 default profile: "default"
