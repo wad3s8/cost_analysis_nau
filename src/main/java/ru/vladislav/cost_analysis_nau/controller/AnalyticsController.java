@@ -14,6 +14,7 @@ import ru.vladislav.cost_analysis_nau.service.AnalyticsService;
 
 import java.time.LocalDateTime;
 
+/** Контроллер страницы аналитики: сводка доходов/расходов и группировка по категориям за период. */
 @Controller
 @RequestMapping("/analytics")
 @RequiredArgsConstructor

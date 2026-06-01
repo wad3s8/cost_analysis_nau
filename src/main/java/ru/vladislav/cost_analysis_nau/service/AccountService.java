@@ -12,6 +12,7 @@ import ru.vladislav.cost_analysis_nau.repository.AccountRepository;
 
 import java.util.List;
 
+/** Бизнес-логика для работы со счетами пользователя (CRUD). */
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -19,16 +20,23 @@ public class AccountService {
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
     private final AccountRepository accountRepository;
 
+    /** Возвращает все счета пользователя. */
     public List<Account> getAccountsByUser(User user) {
         return accountRepository.findByUserId(user.getId());
     }
 
+    /**
+     * Возвращает счёт по id, проверяя принадлежность пользователю.
+     *
+     * @throws RuntimeException если счёт не найден или принадлежит другому пользователю
+     */
     public Account getAccountByIdAndUser(Long id, User user) {
         return accountRepository.findById(id)
                 .filter(a -> a.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
+    /** Создаёт новый счёт для пользователя с начальным балансом из формы (по умолчанию 0). */
     @Transactional
     public Account create(AccountForm form, User user) {
         Account account = new Account();
@@ -40,6 +48,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    /** Обновляет имя и описание счёта (баланс через update не меняется — только через транзакции). */
     @Transactional
     public Account update(Long id, AccountForm form, User user) {
         Account account = getAccountByIdAndUser(id, user);
@@ -56,6 +65,7 @@ public class AccountService {
         accountRepository.delete(account);
     }
 
+    /** Возвращает суммарный баланс по всем счетам пользователя. */
     public double getTotalBalance(User user) {
         return accountRepository.findByUserId(user.getId()).stream()
                 .mapToDouble(Account::getBalance)

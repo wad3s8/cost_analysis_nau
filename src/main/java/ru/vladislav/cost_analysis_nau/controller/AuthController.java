@@ -14,6 +14,7 @@ import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 
 import java.util.Locale;
 
+/** Обрабатывает регистрацию и отображение формы входа. Авторизацию выполняет Spring Security. */
 @RequiredArgsConstructor
 @Controller
 public class AuthController {

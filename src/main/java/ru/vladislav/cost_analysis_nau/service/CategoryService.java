@@ -11,6 +11,7 @@ import ru.vladislav.cost_analysis_nau.repository.CategoryRepository;
 
 import java.util.List;
 
+/** Бизнес-логика для управления категориями транзакций (CRUD). */
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -18,10 +19,12 @@ public class CategoryService {
     private static final Logger log = LoggerFactory.getLogger(CategoryService.class);
     private final CategoryRepository categoryRepository;
 
+    /** Возвращает все категории (доходные и расходные). */
     public List<Category> getAll() {
         return categoryRepository.findAll();
     }
 
+    /** Возвращает категории заданного типа: {@code true} — доход, {@code false} — расход. */
     public List<Category> getByType(boolean isIncome) {
         return categoryRepository.findByIsIncome(isIncome);
     }

@@ -17,6 +17,7 @@ import ru.vladislav.cost_analysis_nau.service.TransactionService;
 
 import java.time.LocalDateTime;
 
+/** CRUD-контроллер транзакций: список с фильтрацией, создание, редактирование, удаление. */
 @Controller
 @RequestMapping("/transactions")
 @RequiredArgsConstructor

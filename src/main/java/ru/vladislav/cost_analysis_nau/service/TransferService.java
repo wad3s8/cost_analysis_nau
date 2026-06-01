@@ -15,6 +15,7 @@ import ru.vladislav.cost_analysis_nau.repository.TransferRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/** Бизнес-логика переводов между счетами одного пользователя. */
 @Service
 @RequiredArgsConstructor
 public class TransferService {
@@ -23,10 +24,17 @@ public class TransferService {
     private final TransferRepository transferRepository;
     private final AccountRepository accountRepository;
 
+    /** Возвращает все переводы пользователя. */
     public List<Transfer> getTransfersByUser(User user) {
         return transferRepository.findByUserId(user.getId());
     }
 
+    /**
+     * Создаёт перевод между счетами: списывает сумму с исходного и зачисляет на целевой.
+     *
+     * @throws RuntimeException если счета совпадают, не найдены, не принадлежат пользователю
+     *                          или недостаточно средств на исходном счёте
+     */
     @Transactional
     public Transfer create(TransferForm form, User user) {
         if (form.getFromAccountId().equals(form.getToAccountId())) {

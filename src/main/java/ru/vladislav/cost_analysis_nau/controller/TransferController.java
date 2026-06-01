@@ -13,6 +13,7 @@ import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 import ru.vladislav.cost_analysis_nau.service.AccountService;
 import ru.vladislav.cost_analysis_nau.service.TransferService;
 
+/** Контроллер переводов между счетами: список и создание нового перевода. */
 @Controller
 @RequestMapping("/transfers")
 @RequiredArgsConstructor

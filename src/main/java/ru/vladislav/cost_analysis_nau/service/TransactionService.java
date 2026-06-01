@@ -17,6 +17,10 @@ import ru.vladislav.cost_analysis_nau.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Бизнес-логика операций с транзакциями: создание, редактирование, удаление, фильтрация.
+ * Все изменения баланса счёта атомарны — выполняются в рамках одной транзакции БД.
+ */
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
@@ -26,21 +30,38 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
 
+    /** Возвращает все транзакции пользователя, отсортированные по дате (новые первые). */
     public List<Transaction> getByUser(User user) {
         return transactionRepository.findByUserId(user.getId());
     }
 
+    /**
+     * Возвращает транзакции пользователя с применением фильтров.
+     * Любой из параметров-фильтров может быть {@code null} — тогда он игнорируется.
+     */
     public List<Transaction> getFiltered(User user, Long categoryId, Boolean isIncome,
                                          LocalDateTime from, LocalDateTime to) {
         return transactionRepository.findFiltered(user.getId(), categoryId, isIncome, from, to);
     }
 
+    /**
+     * Возвращает транзакцию по id, проверяя принадлежность пользователю.
+     *
+     * @throws RuntimeException если транзакция не найдена или принадлежит другому пользователю
+     */
     public Transaction getById(Long id, User user) {
         return transactionRepository.findById(id)
                 .filter(t -> t.getAccount().getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
     }
 
+    /**
+     * Создаёт новую транзакцию и обновляет баланс счёта.
+     *
+     * @throws RuntimeException если счёт не найден, категория не найдена,
+     *                          тип категории не совпадает с типом транзакции
+     *                          или недостаточно средств для расхода
+     */
     @Transactional
     public Transaction create(TransactionForm form, User user) {
         Account account = accountRepository.findById(form.getAccountId())
@@ -77,6 +98,13 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    /**
+     * Обновляет существующую транзакцию: откатывает старый эффект на баланс,
+     * применяет новый. Поддерживает смену счёта, суммы, категории и типа.
+     *
+     * @throws RuntimeException если новый счёт/категория не найдены, тип не совпадает
+     *                          или недостаточно средств
+     */
     @Transactional
     public Transaction update(Long id, TransactionForm form, User user) {
         Transaction transaction = getById(id, user);
@@ -123,6 +151,11 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    /**
+     * Удаляет транзакцию и восстанавливает баланс счёта (откатывает эффект операции).
+     *
+     * @throws RuntimeException если транзакция не найдена или не принадлежит пользователю
+     */
     @Transactional
     public void delete(Long id, User user) {
         Transaction transaction = getById(id, user);

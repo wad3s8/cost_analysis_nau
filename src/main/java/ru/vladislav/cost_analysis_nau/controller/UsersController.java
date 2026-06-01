@@ -15,6 +15,7 @@ import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 import ru.vladislav.cost_analysis_nau.service.AccountService;
 import ru.vladislav.cost_analysis_nau.service.TransactionService;
 
+/** Контроллер дашборда и административных страниц: управление пользователями и системная статистика. */
 @RequiredArgsConstructor
 @Controller
 public class UsersController {

@@ -10,6 +10,7 @@ import ru.vladislav.cost_analysis_nau.dto.CategoryForm;
 import ru.vladislav.cost_analysis_nau.entity.Category;
 import ru.vladislav.cost_analysis_nau.service.CategoryService;
 
+/** CRUD-контроллер категорий транзакций: список, создание, редактирование, удаление. */
 @Controller
 @RequestMapping("/categories")
 @RequiredArgsConstructor

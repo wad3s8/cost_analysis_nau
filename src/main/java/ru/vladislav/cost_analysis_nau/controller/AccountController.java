@@ -12,6 +12,7 @@ import ru.vladislav.cost_analysis_nau.entity.User;
 import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 import ru.vladislav.cost_analysis_nau.service.AccountService;
 
+/** CRUD-контроллер счетов пользователя: список, создание, редактирование, удаление. */
 @Controller
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
