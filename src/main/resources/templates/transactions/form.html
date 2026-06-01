@@ -29,8 +29,8 @@
                 <label>Тип</label>
                 <select name="isIncome" id="typeSelect" required onchange="filterCategories()">
                     <option value="" disabled selected>Выберите тип</option>
-                    <option value="true"  th:selected="${form.isIncome == true}">Доход</option>
-                    <option value="false" th:selected="${form.isIncome == false}">Расход</option>
+                    <option value="true"  th:selected="${form.isIncome == true  and (error != null or transactionId != null)}">Доход</option>
+                    <option value="false" th:selected="${form.isIncome == false and (error != null or transactionId != null)}">Расход</option>
                 </select>
             </div>
             <div class="form-group">

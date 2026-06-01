@@ -1,0 +1,32 @@
+services:
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: analysis-nau
+      POSTGRES_USER: analysis-nau
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U analysis-nau -d analysis-nau"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/analysis-nau
+      SPRING_DATASOURCE_USERNAME: analysis-nau
+      SPRING_DATASOURCE_PASSWORD: 12345
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:

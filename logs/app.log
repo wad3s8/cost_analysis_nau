@@ -1,3 +1,7 @@
 2026-06-01 18:16:13.319 [main] INFO  r.v.cost_analysis_nau.CostAnalysisNauApplication - Starting CostAnalysisNauApplication using Java 25.0.2 with PID 2344 (C:\Users\vladu\Desktop\naumen\cost_analysis_nau\target\classes started by vladu in C:\Users\vladu\Desktop\naumen\cost_analysis_nau)
 2026-06-01 18:16:13.323 [main] INFO  r.v.cost_analysis_nau.CostAnalysisNauApplication - No active profile set, falling back to 1 default profile: "default"
 2026-06-01 18:16:36.849 [main] INFO  r.v.cost_analysis_nau.CostAnalysisNauApplication - Started CostAnalysisNauApplication in 25.058 seconds (process running for 30.912)
+2026-06-01 18:19:02.473 [http-nio-8080-exec-4] INFO  r.v.cost_analysis_nau.controller.AuthController - New user registered: 'wad3s'
+2026-06-01 18:19:10.719 [http-nio-8080-exec-3] INFO  r.v.c.configuration.SecurityEventListener - User 'wad3s' logged in
+2026-06-01 18:19:25.594 [http-nio-8080-exec-6] INFO  r.v.cost_analysis_nau.service.AccountService - Creating account 'Сбер урфу' for user 'wad3s'
+2026-06-01 18:19:51.113 [http-nio-8080-exec-1] INFO  r.v.cost_analysis_nau.service.AccountService - Creating account 'сбер зарплата' for user 'wad3s'

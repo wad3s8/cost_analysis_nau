@@ -113,6 +113,28 @@ Controller  →  Service  →  Repository  →  PostgreSQL
 
 Spring Data REST также экспортирует `/data-rest/transaction` и `/data-rest/account` (доступно только роли `ADMIN`).
 
+## Запуск через Docker
+
+```bash
+docker compose up --build
+```
+
+Приложение поднимет PostgreSQL и сам сервис. После старта открывайте http://localhost:8080.
+
+Логи приложения монтируются в папку `./logs/` на хосте.
+
+Остановка и удаление контейнеров:
+
+```bash
+docker compose down
+```
+
+Удаление вместе с данными БД:
+
+```bash
+docker compose down -v
+```
+
 ## Тесты
 
 ```bash
