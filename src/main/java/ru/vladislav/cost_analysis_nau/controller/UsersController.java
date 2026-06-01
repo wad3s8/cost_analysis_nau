@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.vladislav.cost_analysis_nau.entity.User;
+import ru.vladislav.cost_analysis_nau.repository.AccountRepository;
+import ru.vladislav.cost_analysis_nau.repository.TransactionRepository;
 import ru.vladislav.cost_analysis_nau.repository.UsersRepository;
 import ru.vladislav.cost_analysis_nau.service.AccountService;
 import ru.vladislav.cost_analysis_nau.service.TransactionService;
@@ -21,6 +23,8 @@ public class UsersController {
     private final UsersRepository usersRepository;
     private final AccountService accountService;
     private final TransactionService transactionService;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     @GetMapping("/")
     public String dashboard(Model model, Authentication auth) {
@@ -46,5 +50,18 @@ public class UsersController {
         usersRepository.deleteById(id);
         log.info("Admin deleted user {}", id);
         return "redirect:/admin/users";
+    }
+
+    @GetMapping("/admin/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String systemStats(Model model) {
+        model.addAttribute("userCount", usersRepository.count());
+        model.addAttribute("accountCount", accountRepository.count());
+        model.addAttribute("transactionCount", transactionRepository.count());
+        model.addAttribute("totalIncome", transactionRepository.sumAllByType(true));
+        model.addAttribute("totalExpense", transactionRepository.sumAllByType(false));
+        model.addAttribute("incomeByUser", transactionRepository.sumGroupedByUser(true));
+        model.addAttribute("expenseByUser", transactionRepository.sumGroupedByUser(false));
+        return "admin/stats";
     }
 }

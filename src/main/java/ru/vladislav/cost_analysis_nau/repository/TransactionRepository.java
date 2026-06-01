@@ -71,4 +71,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+
+    @Query("select coalesce(sum(t.amount), 0) from Transaction t where t.isIncome = :isIncome")
+    Double sumAllByType(@Param("isIncome") boolean isIncome);
+
+    @Query("""
+        select t.account.user.login, coalesce(sum(t.amount), 0)
+        from Transaction t
+        where t.isIncome = :isIncome
+        group by t.account.user.login
+        order by sum(t.amount) desc
+    """)
+    List<Object[]> sumGroupedByUser(@Param("isIncome") boolean isIncome);
 }

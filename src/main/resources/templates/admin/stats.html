@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Статистика системы')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<div class="container">
+    <h1>Статистика системы</h1>
+
+    <div class="cards">
+        <div class="card">
+            <div class="label">Пользователей</div>
+            <div class="value" th:text="${userCount}"></div>
+        </div>
+        <div class="card">
+            <div class="label">Счетов</div>
+            <div class="value" th:text="${accountCount}"></div>
+        </div>
+        <div class="card">
+            <div class="label">Транзакций</div>
+            <div class="value" th:text="${transactionCount}"></div>
+        </div>
+        <div class="card">
+            <div class="label">Всего доходов</div>
+            <div class="value income"
+                 th:text="${#numbers.formatDecimal(totalIncome, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></div>
+        </div>
+        <div class="card">
+            <div class="label">Всего расходов</div>
+            <div class="value expense"
+                 th:text="${#numbers.formatDecimal(totalExpense, 1, 'COMMA', 2, 'POINT') + ' ₽'}"></div>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px">
+        <div>
+            <h2>Доходы по пользователям</h2>
+            <div th:if="${#lists.isEmpty(incomeByUser)}" style="color:#888">Нет данных.</div>
+            <div class="table-wrap" th:unless="${#lists.isEmpty(incomeByUser)}">
+                <table>
+                    <thead><tr><th>Пользователь</th><th>Сумма</th></tr></thead>
+                    <tbody>
+                    <tr th:each="row : ${incomeByUser}">
+                        <td th:text="${row[0]}"></td>
+                        <td class="amount-income"
+                            th:text="${#numbers.formatDecimal(row[1], 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h2>Расходы по пользователям</h2>
+            <div th:if="${#lists.isEmpty(expenseByUser)}" style="color:#888">Нет данных.</div>
+            <div class="table-wrap" th:unless="${#lists.isEmpty(expenseByUser)}">
+                <table>
+                    <thead><tr><th>Пользователь</th><th>Сумма</th></tr></thead>
+                    <tbody>
+                    <tr th:each="row : ${expenseByUser}">
+                        <td th:text="${row[0]}"></td>
+                        <td class="amount-expense"
+                            th:text="${#numbers.formatDecimal(row[1], 1, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:16px">
+        <a th:href="@{/admin/users}" class="btn btn-secondary">← Пользователи</a>
+    </div>
+</div>
+</body>
+</html>
