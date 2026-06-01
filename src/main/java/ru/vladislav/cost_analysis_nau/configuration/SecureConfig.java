@@ -25,6 +25,7 @@ public class SecureConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/monitoring").hasRole(Role.ADMIN.name())
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                         .requestMatchers("/login", "/registration").permitAll()
                         .anyRequest().authenticated())

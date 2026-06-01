@@ -113,6 +113,12 @@ Controller  →  Service  →  Repository  →  PostgreSQL
 
 Spring Data REST также экспортирует `/data-rest/transaction` и `/data-rest/account` (доступно только роли `ADMIN`).
 
+## Мониторинг (JavaMelody)
+
+Доступен по адресу http://localhost:8080/monitoring только для роли `ADMIN`.
+
+Показывает: HTTP-запросы, SQL-запросы, время отклика, использование памяти и потоков, статистику JVM.
+
 ## Запуск через Docker
 
 ```bash

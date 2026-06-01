@@ -20,6 +20,7 @@
         <span class="nav-user" sec:authentication="name"></span>
         <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">Пользователи</a>
         <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/stats}">Статистика</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/monitoring}">Мониторинг</a>
         <form th:action="@{/logout}" method="post" style="display:inline">
             <button type="submit" class="btn btn-sm btn-secondary">Выйти</button>
         </form>
